@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pi Water Control</title>
+<style>
+  :root { --bg:#0b1220; --card:#121a2b; --line:#1f2a44; --txt:#e6eaf2; --muted:rgba(230,234,242,.75); }
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:0;padding:16px;background:var(--bg);color:var(--txt)}
+  .wrap{max-width:920px;margin:0 auto}
+  h1{font-size:1.5rem;margin:0 0 6px}
+  h2{font-size:1.1rem;margin:0 0 8px}
+  .section{margin:18px 0 26px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 1px 0 #0b1220 inset}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .pill{padding:4px 8px;border-radius:999px;background:var(--line);font-size:.8rem}
+  .muted{color:var(--muted)}
+  .btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  button,a.btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:#30406b;color:#fff;text-decoration:none;cursor:pointer}
+  a.btn:hover,button:hover{filter:brightness(1.05)}
+  input[type=number],input[type=time],input[type=text]{padding:8px;border-radius:10px;border:1px solid #30406b;background:var(--bg);color:var(--txt)}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
+  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+  .danger{background:#6b3030}
+  .ok{background:#305a30}
+  code{opacity:.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- LIVE STATUS -->
+  <div class="section">
+    <div class="card">
+      <h1>Pi Water Control</h1>
+      <div class="row" style="justify-content:space-between;margin-top:6px">
+        <div>
+          <h2>Live status</h2>
+          {% if current.active %}
+            <div class="row">
+              <strong>Running:</strong> <span class="pill">{{current.name}}</span>
+              <span>Step: {{current.step}}</span>
+              <span>Ends ~ {{current.ends}}</span>
+            </div>
+          {% else %}
+            <div class="muted">Idle — no zone is active.</div>
+          {% endif %}
+        </div>
+        <div style="text-align:right">
+          <div class="muted">Last program run:</div>
+          <strong>{{ last_run or "—" }}</strong>
+        </div>
+      </div>
+      <div class="btns" style="margin-top:12px">
+        <a class="btn danger" href="/all/off">ALL OFF</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL CONTROLS -->
+  <div class="section">
+    <div class="card">
+      <h2>Manual control</h2>
+      <div class="grid" style="margin-top:8px">
+        {% for key, name in zones %}
+        <div class="card" style="padding:12px">
+          <div class="title"><strong>{{name}}</strong><code>{{key}}</code></div>
+          <div class="btns">
+            <a class="btn" href="/on/{{key}}">ON</a>
+            <a class="btn" href="/off/{{key}}">OFF</a>
+            <form class="row" action="/pulse/{{key}}" method="post">
+              <input type="number" name="secs" step="1" min="1" value="5">
+              <button type="submit" class="btn">PULSE (s)</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="muted" style="margin-top:8px">Only one zone runs at a time (manual & schedules).</div>
+    </div>
+  </div>
+
+  <!-- SCHEDULING -->
+  <div class="section">
+    <div class="card">
+      <h2>Schedules</h2>
+      <div class="muted">Runs zones sequentially — never together.</div>
+
+      <form class="row" action="/schedules/add" method="post" style="margin-top:12px">
+        <input type="text" name="name" placeholder="Program name" required>
+        <label class="muted">Start:</label>
+        <input type="time" name="start" required>
+        <label class="muted">Days:</label>
+        {% for d in ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
+          <label><input type="checkbox" name="days" value="{{d}}"> {{d}}</label>
+        {% endfor %}
+        <div style="width:100%"></div>
+        <div class="row" style="margin-top:6px">
+          <strong>Durations (minutes):</strong>
+          {% for key, name in zones %}
+            <label style="min-width:200px">{{name}} <input type="number" min="0" step="1" name="dur_{{key}}" value="0"></label>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn ok">Add Schedule</button>
+      </form>
+
+      <table>
+        <thead><tr><th>Name</th><th>Start</th><th>Days</th><th>Sequence</th><th>Last run</th><th></th></tr></thead>
+        <tbody>
+          {% for s in schedules %}
+          <tr>
+            <td>{{s.name}}</td>
+            <td>{{s.start}}</td>
+            <td>{{",".join(s.days)}}</td>
+            <td>
+              {% for z in s.sequence %}
+                {{z.key}} ({{z.mins}}m){% if not loop.last %} → {% endif %}
+              {% endfor %}
+            </td>
+            <td class="muted">{{s.last_run or "—"}}</td>
+            <td><a class="btn danger" href="/schedules/del/{{s.id}}">Delete</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div class="muted" style="margin-top:10px">
+        Hotspot IP: <strong>http://192.168.50.1:8080</strong>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
