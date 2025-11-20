@@ -1,191 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Αυτόματο Πότισμα</title>
-<style>
-  :root { --bg:#0b1220; --card:#121a2b; --line:#1f2a44; --txt:#e6eaf2; --muted:rgba(230,234,242,.75); }
-  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:0;padding:16px;background:var(--bg);color:var(--txt)}
-  .wrap{max-width:920px;margin:0 auto}
-  h1{font-size:1.5rem;margin:0 0 6px}
-  h2{font-size:1.1rem;margin:0 0 8px}
-  .section{margin:18px 0 26px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 1px 0 #0b1220 inset}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .title{display:flex;justify-content:space-between;align-items:center;gap:10px}
-  .pill{padding:4px 8px;border-radius:999px;background:var(--line);font-size:.8rem}
-  .muted{color:var(--muted)}
-  .btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-  button,a.btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:#30406b;color:#fff;text-decoration:none;cursor:pointer}
-  a.btn:hover,button:hover{filter:brightness(1.05)}
-  input[type=number],input[type=time],input[type=text]{padding:8px;border-radius:10px;border:1px solid #30406b;background:var(--bg);color:var(--txt)}
-  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
-  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
-  .danger{background:#6b3030}
-  .ok{background:#305a30}
-  code{opacity:.6}
-</style>
 
-<style>
-  .card {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .env-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .env-header h3 {
-    margin: 0;
-  }
-
-  .env-header button {
-    padding: 0.25rem 0.75rem;
-  }
-</style>
-
-<style>
- .stored-programs {
-  margin-top: 1.5rem;
-}
-
-/* table styling inside the dark theme */
-.programs-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.programs-table th,
-.programs-table td {
-  border: 1px solid #374151;       /* dark grey borders */
-  padding: 0.5rem 0.75rem;
-  vertical-align: middle;
-}
-
-/* make header row dark, so no white band */
-.programs-table th {
-  background: #111827;             /* same family as your page bg */
-  color: #e5e7eb;
-  font-weight: 600;
-}
-
-/* optional: slightly darker row background, or just keep transparent */
-.programs-table tbody tr:nth-child(odd) {
-  background: #020617;
-}
-
-.programs-table tbody tr:nth-child(even) {
-  background: #030712;
-}
-
-/* make delete button smaller */
-.programs-table .btn.danger {
-  padding: 0.1rem 0.6rem;
-  font-size: 0.8rem;
-  line-height: 1.1;
-}
-
-
-/* basic spacing between logical rows */
-.sched-row {
-  align-items: center;
-}
-
-/* days row wraps nicely */
-.sched-days {
-  flex-wrap: wrap;
-}
-
-/* 2 zones per row, evenly spaced */
-.zone-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 per row */
-  gap: 8px 16px;
-  margin-top: 4px;
-}
-
-.zone-item {
-  border: 1px solid #374151;
-  border-radius: 4px;
-  padding: 4px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.zone-name {
-  font-weight: 500;
-  margin-right: 6px;
-}
-
-.zone-item input[type="number"] {
-  width: 4rem;
-  margin-right: 4px;
-}
-
-.zone-unit {
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-.top-logo {
-    height: 140px;
-    width: auto;
-}
-
-.logo-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    border-radius: 8px;
-
-    background: r#e2e8f0;  /* white tint */
-    backdrop-filter: blur(4px);              /* smooth glass effect */
-}
-
-/* logo image */
-.logo-img {
-    height: 120px;   /* perfect size for your layout */
-    width: 200px;
-}
-
-/* company text */
-.logo-label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #e2e8f0;     /* light grey/white */
-    margin: 0;
-    padding: 0;
-}
-
-
-</style>
-
-
+<title>Αυτοματο Πότισμα</title>
 </head>
+
 <body>
-
-
 <div class="wrap">
-
-
 
   <!-- Time Part-->
 <div class="top-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-  <div>
-    Ημέρα και ώρα: <strong>{{ current_time }}</strong>
-  </div>
-
-  <div class="logo-box">
+<div>
+ <h1>Αυτόματο Σύστημα Ποτίσματος Βίλλας Μαραζιώτη Αλεποχωρίου</h1>
+ </div> 
+ <div class="logo-box">
     <img src="{{ url_for('static', filename='marlogo.png') }}" class="logo-img">
     
   </div>
@@ -194,33 +24,50 @@
 
 
 
-  <!-- LIVE STATUS -->
-  <div class="section">
-    <div class="card">
-      <h1>Αυτόματο Πότισμα</h1>
-      <div class="row" style="justify-content:space-between;margin-top:6px">
-        <div>
-          <h2>Ποτίζει Τώρα</h2>
-          {% if current.active %}
-            <div class="row">
-              <strong>Εκτελείται:</strong> <span class="pill">{{current.name}}</span>
-              <span>Βήμα: {{current.step}}</span>
-              <span>Λήγει ~ {{current.ends}}</span>
-            </div>
-          {% else %}
-            <div class="muted">Σε Αδράνεια — καμία ζώνη δεν είναι ενεργή.</div>
-          {% endif %}
-        </div>
-        <div style="text-align:right">
-          <div class="muted">Πρόγραμμα που έτρεξε τελευταία φορά:</div>
-          <strong>{{ last_run or "—" }}</strong>
+<!-- LIVE STATUS -->
+<div class="section">
+  <div class="card">
+
+    <div class="row" style="justify-content:space-between; align-items:flex-start; margin-top:6px;">
+
+      <!-- Left side: title + live status + current time -->
+      <div>
+        <h2>Ποτίζει Τώρα ; </h2>
+
+        {% if current.active %}
+          <div class="row" style="margin-top:12px;">
+            <strong>Εκτελείται:</strong>
+            <span class="pill">{{ current.name }}</span>
+          </div>
+          <div class="muted" style="margin-top:8px;">
+            Βήμα: {{ current.step }} &nbsp;·&nbsp; Λήγει ~ {{ current.ends }}
+          </div>
+        {% else %}
+          <div class="muted" style="margin-top:20px;">
+            Σε Αδράνεια — καμία ζώνη δεν είναι ενεργή.
+          </div>
+        {% endif %}
+
+        <div class="muted" style="margin-top:20px;margin-bottom: 10px;">
+          Ώρα συστήματος: <strong>{{ current_time }}</strong>
         </div>
       </div>
-      <div class="btns" style="margin-top:12px">
-        <a class="btn danger" href="/all/off">Κλείσιμο Όλων των Ζωνών</a>
+
+      <!-- Right side: last program run -->
+      <div style="text-align:right;">
+        <div class="muted">Πρόγραμμα που έτρεξε τελευταία φορά:</div>
+        <strong>{{ last_run or "—" }}</strong>
       </div>
+
     </div>
+
+    <div class="btns" style="margin-top:12px;">
+      <a class="btn danger" href="/all/off">Κλείσιμο Όλων των Ζωνών</a>
+    </div>
+
   </div>
+</div>
+
 
 
   <!--  Environment -->
