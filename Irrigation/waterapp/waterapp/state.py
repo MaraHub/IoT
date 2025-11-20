@@ -10,3 +10,9 @@ current_run = {
     "step": None,
     "ends_at": None,
 }
+
+# Last known environment reading for the UI (manual refresh)
+env_state = {
+    "temp": None,
+    "hum": None,
+}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pi Water Control</title>
+<title>Automato Potisma</title>
 <style>
   :root { --bg:#0b1220; --card:#121a2b; --line:#1f2a44; --txt:#e6eaf2; --muted:rgba(230,234,242,.75); }
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:0;padding:16px;background:var(--bg);color:var(--txt)}
@@ -26,14 +26,178 @@
   .ok{background:#305a30}
   code{opacity:.6}
 </style>
+
+<style>
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .env-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .env-header h3 {
+    margin: 0;
+  }
+
+  .env-header button {
+    padding: 0.25rem 0.75rem;
+  }
+</style>
+
+<style>
+ .stored-programs {
+  margin-top: 1.5rem;
+}
+
+/* table styling inside the dark theme */
+.programs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.programs-table th,
+.programs-table td {
+  border: 1px solid #374151;       /* dark grey borders */
+  padding: 0.5rem 0.75rem;
+  vertical-align: middle;
+}
+
+/* make header row dark, so no white band */
+.programs-table th {
+  background: #111827;             /* same family as your page bg */
+  color: #e5e7eb;
+  font-weight: 600;
+}
+
+/* optional: slightly darker row background, or just keep transparent */
+.programs-table tbody tr:nth-child(odd) {
+  background: #020617;
+}
+
+.programs-table tbody tr:nth-child(even) {
+  background: #030712;
+}
+
+/* make delete button smaller */
+.programs-table .btn.danger {
+  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.1;
+}
+
+
+/* basic spacing between logical rows */
+.sched-row {
+  align-items: center;
+}
+
+/* days row wraps nicely */
+.sched-days {
+  flex-wrap: wrap;
+}
+
+/* 2 zones per row, evenly spaced */
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 per row */
+  gap: 8px 16px;
+  margin-top: 4px;
+}
+
+.zone-item {
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.zone-name {
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.zone-item input[type="number"] {
+  width: 4rem;
+  margin-right: 4px;
+}
+
+.zone-unit {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+.top-logo {
+    height: 140px;
+    width: auto;
+}
+
+.logo-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.12);  /* white tint */
+    backdrop-filter: blur(4px);              /* smooth glass effect */
+}
+
+/* logo image */
+.logo-img {
+    height: 34px;   /* perfect size for your layout */
+    width: auto;
+}
+
+/* company text */
+.logo-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;     /* light grey/white */
+    margin: 0;
+    padding: 0;
+}
+
+
+</style>
+
+
 </head>
 <body>
+
+
 <div class="wrap">
+
+
+
+  <!-- Time Part-->
+<div class="top-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+  <div>
+    Current time: <strong>{{ current_time }}</strong>
+  </div>
+
+  <div class="logo-box">
+    <img src="{{ url_for('static', filename='marlogo.png') }}" class="logo-img">
+    <span class="logo-label">MarConsulting</span>
+  </div>
+</div>
+
+
+
 
   <!-- LIVE STATUS -->
   <div class="section">
     <div class="card">
-      <h1>Pi Water Control</h1>
+      <h1>Aytomato Potisma</h1>
       <div class="row" style="justify-content:space-between;margin-top:6px">
         <div>
           <h2>Live status</h2>
@@ -58,6 +222,28 @@
     </div>
   </div>
 
+
+  <!--  Environment -->
+
+
+<div class="card env-card">
+  <div class="env-header">
+    <h3>Environment</h3>
+    <form action="{{ url_for('main.refresh_env') }}" method="get">
+      <button type="submit">Refresh sensor</button>
+    </form>
+  </div>
+
+  {% if env.temp is not none and env.hum is not none %}
+    <p>Temperature: <strong>{{ "%.1f"|format(env.temp) }} °C</strong></p>
+    <p>Humidity: <strong>{{ "%.1f"|format(env.hum) }} %</strong></p>
+  {% else %}
+    <p><em>No sensor reading yet. Press “Refresh sensor”.</em></p>
+  {% endif %}
+</div>
+
+
+
   <!-- MANUAL CONTROLS -->
   <div class="section">
     <div class="card">
@@ -81,53 +267,100 @@
     </div>
   </div>
 
-  <!-- SCHEDULING -->
-  <div class="section">
-    <div class="card">
-      <h2>Schedules</h2>
-      <div class="muted">Runs zones sequentially — never together.</div>
+<!-- SCHEDULING -->
+<div class="section">
+  <div class="card">
+    <h2>Schedules</h2>
+    <div class="muted">Runs zones sequentially — never together.</div>
 
-      <form class="row" action="/schedules/add" method="post" style="margin-top:12px">
+    <form action="/schedules/add" method="post" style="margin-top:12px">
+
+      <!-- row: program name + start time -->
+      <div class="row sched-row">
         <input type="text" name="name" placeholder="Program name" required>
-        <label class="muted">Start:</label>
+
+        <label class="muted" style="margin-left:12px;">Start:</label>
         <input type="time" name="start" required>
-        <label class="muted">Days:</label>
-        {% for d in ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
-          <label><input type="checkbox" name="days" value="{{d}}"> {{d}}</label>
-        {% endfor %}
-        <div style="width:100%"></div>
-        <div class="row" style="margin-top:6px">
-          <strong>Durations (minutes):</strong>
-          {% for key, name in zones %}
-            <label style="min-width:200px">{{name}} <input type="number" min="0" step="1" name="dur_{{key}}" value="0"></label>
-          {% endfor %}
-        </div>
-        <button type="submit" class="btn ok">Add Schedule</button>
-      </form>
-
-      <table>
-        <thead><tr><th>Name</th><th>Start</th><th>Days</th><th>Sequence</th><th>Last run</th><th></th></tr></thead>
-        <tbody>
-          {% for s in schedules %}
-          <tr>
-            <td>{{s.name}}</td>
-            <td>{{s.start}}</td>
-            <td>{{",".join(s.days)}}</td>
-            <td>
-              {% for z in s.sequence %}
-                {{z.key}} ({{z.mins}}m){% if not loop.last %} → {% endif %}
-              {% endfor %}
-            </td>
-            <td class="muted">{{s.last_run or "—"}}</td>
-            <td><a class="btn danger" href="/schedules/del/{{s.id}}">Delete</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-      <div class="muted" style="margin-top:10px">
-        Hotspot IP: <strong>http://192.168.50.1:8080</strong>
       </div>
+
+      <!-- row: days -->
+      <div class="row sched-row sched-days" style="margin-top:6px;">
+        <label class="muted" style="margin-right:8px;">Days:</label>
+        {% for d in ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
+          <label style="display:flex;align-items:center;gap:4px;margin-right:8px;">
+            <input type="checkbox" name="days" value="{{d}}"> {{d}}
+          </label>
+        {% endfor %}
+      </div>
+
+      <!-- label row for durations -->
+      <div class="row" style="margin-top:8px;">
+        <strong>Durations (minutes):</strong>
+      </div>
+
+      <!-- zones: 2 per row, evenly spaced -->
+      <div class="zone-grid">
+        {% for key, name in zones %}
+          <label class="zone-item">
+            <span class="zone-name">{{ name }}</span>
+            <input type="number" min="0" step="1" name="dur_{{key}}" value="0">
+            <span class="zone-unit">min</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <!-- centered Add Schedule button -->
+      <div class="row" style="justify-content:center; margin-top:10px;">
+        <button type="submit" class="btn ok">Add Schedule</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+  <!-- Stored Schedules -->
+
+   <div class="card stored-programs">
+  <h2>Stored programs</h2>
+
+  {% if schedules %}
+    <table class="programs-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Start</th>
+          <th>Days</th>
+          <th>Sequence</th>
+          <th>Last run</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in schedules %}
+        <tr>
+          <td>{{ s.name }}</td>
+          <td>{{ s.start }}</td>
+          <td>{{ ",".join(s.days) }}</td>
+          <td>
+            {% for z in s.sequence %}
+              {{ z.key }} ({{ z.mins }}m){% if not loop.last %} → {% endif %}
+            {% endfor %}
+          </td>
+          <td class="muted">{{ s.last_run or "—" }}</td>
+          <td>
+            <a class="btn danger" href="/schedules/del/{{ s.id }}">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="muted"><em>No stored programs yet.</em></p>
+  {% endif %}
+</div>
+
+
     </div>
   </div>
 

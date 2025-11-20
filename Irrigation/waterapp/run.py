@@ -5,4 +5,4 @@ app = create_app()
 
 if __name__ == "__main__":
     # Make sure ONLY this copy is running, or GPIO pins will be busy.
-    app.run(host="0.0.0.0", port=8080)
+    app.run(host="0.0.0.0", port=8080,debug=True)

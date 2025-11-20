@@ -11,10 +11,13 @@ from flask import (
     jsonify,
 )
 
-from .config import NAMES, ZORDER
+from .config import NAMES, ZORDER, SENSOR_IP
 from .hardware import devices, all_off, exclusive_on
 from .schedule_store import load_schedules, save_schedules
-from .state import state_lock, run_cancel, current_run
+from .state import state_lock, run_cancel, current_run, env_state
+from .sensor import get_environment
+
+
 
 bp = Blueprint("main", __name__)
 
@@ -32,7 +35,7 @@ def set_off(key: str) -> None:
 #
 #  Routes – UI & API
 #
-# bp.route("/")
+@bp.route("/")
 def index():
     scheds = load_schedules()
 
@@ -63,6 +66,11 @@ def index():
                 else "—"
             ),
         }
+        env=dict(env_state)
+    
+    # current time for display (up to minutes)
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+
 
     return render_template(
         "index.html",
@@ -70,6 +78,8 @@ def index():
         schedules=scheds,
         current=cr,
         last_run=last_run,
+        env=env,
+        current_time=current_time,
     )
 
 
@@ -208,4 +218,16 @@ def del_schedule(sid):
     scheds = load_schedules()
     scheds = [s for s in scheds if s.get("id") != sid]
     save_schedules(scheds)
+    return redirect(url_for("main.index"))
+
+@bp.route("/env/refresh")
+def refresh_env():
+    """Manually refresh sensor reading for the UI."""
+    reading = get_environment(SENSOR_IP)
+    with state_lock:
+        if reading:
+            env_state["temp"] = reading["temp"]
+            env_state["hum"] = reading["hum"]
+        # if reading failed, we just keep the old values
+
     return redirect(url_for("main.index"))

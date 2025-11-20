@@ -1,0 +1,43 @@
+[
+  {
+    "id": 1,
+    "name": "test",
+    "start": "12:05",
+    "days": [
+      "Mon",
+      "Tue",
+      "Wed"
+    ],
+    "sequence": [
+      {
+        "key": "R1",
+        "mins": 2
+      },
+      {
+        "key": "R2",
+        "mins": 2
+      },
+      {
+        "key": "R3",
+        "mins": 4
+      }
+    ],
+    "created": 1763628522
+  },
+  {
+    "id": 2,
+    "name": "test 2",
+    "start": "12:00",
+    "days": [
+      "Tue",
+      "Thu"
+    ],
+    "sequence": [
+      {
+        "key": "S1",
+        "mins": 3
+      }
+    ],
+    "created": 1763633528
+  }
+]

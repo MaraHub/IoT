@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from .config import SCHED_FILE
+SKIP_LOG_FILE = os.path.join(os.path.dirname(SCHED_FILE), "skipped_runs.json")
 
 
 def load_schedules():
@@ -43,3 +44,40 @@ def already_ran_this_minute(sched, dt):
         return (prev.year,prev.month,prev.day,prev.hour,prev.minute) == (dt.year,dt.month,dt.day,dt.hour,dt.minute)
     except:
         return False
+
+def log_skipped_run(sched, when_dt: datetime, humidity: float, temp: float | None):
+    """
+    Log a skipped irrigation run into a JSON log file and update the schedule
+    with a 'last_skipped' summary.
+    """
+    record = {
+        "time": when_dt.strftime("%Y-%m-%d %H:%M"),
+        "schedule_id": sched.get("id"),
+        "schedule_name": sched.get("name"),
+        "humidity": float(humidity),
+        "temp": float(temp) if temp is not None else None,
+    }
+
+    # Load existing log (if any)
+    log = []
+    try:
+        if os.path.exists(SKIP_LOG_FILE):
+            with open(SKIP_LOG_FILE, "r") as f:
+                log = json.load(f)
+    except Exception:
+        log = []
+
+    log.append(record)
+
+    # Write atomically
+    tmp = SKIP_LOG_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(log, f, indent=2)
+    os.replace(tmp, SKIP_LOG_FILE)
+
+    # Also store a compact summary on the schedule itself
+    sched["last_skipped"] = {
+        "time": record["time"],
+        "humidity": record["humidity"],
+        "temp": record["temp"],
+    }
