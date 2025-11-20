@@ -4,11 +4,11 @@ import os
 # SETTINGS (from your app5.py)
 ACTIVE_LOW = True  # your relay HAT energizes on logic low
 RELAYS = { "R1": 26, "R2": 20, "R3": 21 }
-NAMES  = { "R1": "Veranta 1", "R2": "Veranta 2", "R3": "Veranta 3" }
+NAMES  = { "R1": "Βεράντα 1", "R2": "Βεράντα 2", "R3": "Βεράντα 3" }
 
 # Shelly Wi-Fi zone
 SHELLY_ZONES = {
-    "S1": { "ip": "10.42.0.82", "rpc_id": 0, "name": "Kipos Gazon" }
+    "S1": { "ip": "10.42.0.82", "rpc_id": 0, "name": "Γκαζον Εισόδου" }
 }
 
 # Persist schedules here for the RTasberry Pi

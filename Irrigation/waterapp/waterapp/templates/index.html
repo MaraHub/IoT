@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Automato Potisma</title>
+<title>Αυτόματο Πότισμα</title>
 <style>
   :root { --bg:#0b1220; --card:#121a2b; --line:#1f2a44; --txt:#e6eaf2; --muted:rgba(230,234,242,.75); }
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;margin:0;padding:16px;background:var(--bg);color:var(--txt)}
@@ -148,14 +148,14 @@
     padding: 6px 12px;
     border-radius: 8px;
 
-    background: rgba(255, 255, 255, 0.12);  /* white tint */
+    background: r#e2e8f0;  /* white tint */
     backdrop-filter: blur(4px);              /* smooth glass effect */
 }
 
 /* logo image */
 .logo-img {
-    height: 34px;   /* perfect size for your layout */
-    width: auto;
+    height: 120px;   /* perfect size for your layout */
+    width: 200px;
 }
 
 /* company text */
@@ -182,12 +182,12 @@
   <!-- Time Part-->
 <div class="top-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
   <div>
-    Current time: <strong>{{ current_time }}</strong>
+    Ημέρα και ώρα: <strong>{{ current_time }}</strong>
   </div>
 
   <div class="logo-box">
     <img src="{{ url_for('static', filename='marlogo.png') }}" class="logo-img">
-    <span class="logo-label">MarConsulting</span>
+    
   </div>
 </div>
 
@@ -197,27 +197,27 @@
   <!-- LIVE STATUS -->
   <div class="section">
     <div class="card">
-      <h1>Aytomato Potisma</h1>
+      <h1>Αυτόματο Πότισμα</h1>
       <div class="row" style="justify-content:space-between;margin-top:6px">
         <div>
-          <h2>Live status</h2>
+          <h2>Ποτίζει Τώρα</h2>
           {% if current.active %}
             <div class="row">
-              <strong>Running:</strong> <span class="pill">{{current.name}}</span>
-              <span>Step: {{current.step}}</span>
-              <span>Ends ~ {{current.ends}}</span>
+              <strong>Εκτελείται:</strong> <span class="pill">{{current.name}}</span>
+              <span>Βήμα: {{current.step}}</span>
+              <span>Λήγει ~ {{current.ends}}</span>
             </div>
           {% else %}
-            <div class="muted">Idle — no zone is active.</div>
+            <div class="muted">Σε Αδράνεια — καμία ζώνη δεν είναι ενεργή.</div>
           {% endif %}
         </div>
         <div style="text-align:right">
-          <div class="muted">Last program run:</div>
+          <div class="muted">Πρόγραμμα που έτρεξε τελευταία φορά:</div>
           <strong>{{ last_run or "—" }}</strong>
         </div>
       </div>
       <div class="btns" style="margin-top:12px">
-        <a class="btn danger" href="/all/off">ALL OFF</a>
+        <a class="btn danger" href="/all/off">Κλείσιμο Όλων των Ζωνών</a>
       </div>
     </div>
   </div>
@@ -228,17 +228,17 @@
 
 <div class="card env-card">
   <div class="env-header">
-    <h3>Environment</h3>
+    <h3>Καιρός</h3>
     <form action="{{ url_for('main.refresh_env') }}" method="get">
-      <button type="submit">Refresh sensor</button>
+      <button type="submit">Ενημέρωση Καιρού</button>
     </form>
   </div>
 
   {% if env.temp is not none and env.hum is not none %}
-    <p>Temperature: <strong>{{ "%.1f"|format(env.temp) }} °C</strong></p>
-    <p>Humidity: <strong>{{ "%.1f"|format(env.hum) }} %</strong></p>
+    <p>Θερμοκρασία: <strong>{{ "%.1f"|format(env.temp) }} °C</strong></p>
+    <p>Υγρασία: <strong>{{ "%.1f"|format(env.hum) }} %</strong></p>
   {% else %}
-    <p><em>No sensor reading yet. Press “Refresh sensor”.</em></p>
+    <p><em>Δεν υπάρχει ακόμα μέτρηση αισθητήρα. Πατήστε <b>“Ενημέρωση Καιρού”</b>.</em></p>
   {% endif %}
 </div>
 
@@ -247,7 +247,7 @@
   <!-- MANUAL CONTROLS -->
   <div class="section">
     <div class="card">
-      <h2>Manual control</h2>
+      <h2>Χειροκίνητος έλεγχος</h2>
       <div class="grid" style="margin-top:8px">
         {% for key, name in zones %}
         <div class="card" style="padding:12px">
@@ -263,30 +263,30 @@
         </div>
         {% endfor %}
       </div>
-      <div class="muted" style="margin-top:8px">Only one zone runs at a time (manual & schedules).</div>
+      <div class="muted" style="margin-top:8px"> Μόνο μία ζώνη λειτουργεί κάθε φορά (χειροκίνητος & προγράμματα).</div>
     </div>
   </div>
 
 <!-- SCHEDULING -->
 <div class="section">
   <div class="card">
-    <h2>Schedules</h2>
-    <div class="muted">Runs zones sequentially — never together.</div>
+    <h2>Προγράμματα</h2>
+    <div class="muted">Οι ζώνες λειτουργούν διαδοχικά — ποτέ ταυτόχρονα.</div>
 
     <form action="/schedules/add" method="post" style="margin-top:12px">
 
       <!-- row: program name + start time -->
       <div class="row sched-row">
-        <input type="text" name="name" placeholder="Program name" required>
+        <input type="text" name="name" placeholder="Όνομα Προγράμματος" required>
 
-        <label class="muted" style="margin-left:12px;">Start:</label>
+        <label class="muted" style="margin-left:12px;">Έναρξη:</label>
         <input type="time" name="start" required>
       </div>
 
       <!-- row: days -->
       <div class="row sched-row sched-days" style="margin-top:6px;">
-        <label class="muted" style="margin-right:8px;">Days:</label>
-        {% for d in ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] %}
+        <label class="muted" style="margin-right:8px;">Μέρες:</label>
+        {% for d in ["Δευ","Τρι","Τετ","Πεμ","Παρ","Σαβ","Κυρ"] %}
           <label style="display:flex;align-items:center;gap:4px;margin-right:8px;">
             <input type="checkbox" name="days" value="{{d}}"> {{d}}
           </label>
@@ -295,7 +295,7 @@
 
       <!-- label row for durations -->
       <div class="row" style="margin-top:8px;">
-        <strong>Durations (minutes):</strong>
+        <strong>Διάρκεια (λεπτά):</strong>
       </div>
 
       <!-- zones: 2 per row, evenly spaced -->
@@ -311,7 +311,7 @@
 
       <!-- centered Add Schedule button -->
       <div class="row" style="justify-content:center; margin-top:10px;">
-        <button type="submit" class="btn ok">Add Schedule</button>
+        <button type="submit" class="btn ok">Προσθήκη Προγράμματος</button>
       </div>
     </form>
   </div>
@@ -322,17 +322,17 @@
   <!-- Stored Schedules -->
 
    <div class="card stored-programs">
-  <h2>Stored programs</h2>
+  <h2>Αποθηκευμένα προγράμματα</h2>
 
   {% if schedules %}
     <table class="programs-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Start</th>
-          <th>Days</th>
-          <th>Sequence</th>
-          <th>Last run</th>
+          <th>Όνομα</th>
+          <th>Έναρξη</th>
+          <th>Ημέρες</th>
+          <th>Σειρά</th>
+          <th>Τελευταίο Πότισμα</th>
           <th></th>
         </tr>
       </thead>
@@ -349,7 +349,7 @@
           </td>
           <td class="muted">{{ s.last_run or "—" }}</td>
           <td>
-            <a class="btn danger" href="/schedules/del/{{ s.id }}">Delete</a>
+            <a class="btn danger" href="/schedules/del/{{ s.id }}">Διαγραφή</a>
           </td>
         </tr>
         {% endfor %}
