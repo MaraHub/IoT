@@ -15,6 +15,9 @@ from .schedule_store import (
     already_ran_this_minute,
 )
 from .state import state_lock, run_cancel, current_run
+from .sensor import get_environment
+from .config import SENSOR_IP, HUMIDITY_SKIP_THRESHOLD
+
 
 
 def run_sequence(sched):
@@ -66,17 +69,39 @@ def scheduler_loop():
         try:
             now = datetime.now()
             scheds = load_schedules()
-            for s in scheds:
-                if should_run_today(s.get("days",[]), now) and time_matches(s.get("start",""), now) and not already_ran_this_minute(s, now):
-                    mark_last_run(s, now)
-                    save_schedules(scheds)  # persist last_run immediately
-                    run_cancel.set()
-                    Thread(target=run_sequence, args=(s,), daemon=True).start()
-            time.sleep(CHECK_INTERVAL_SEC)
-        except Exception:
-            time.sleep(CHECK_INTERVAL_SEC)
 
-            
+            # === HUMIDITY SENSOR CHECK ============================
+            env = get_environment(SENSOR_IP)
+            humidity_too_high = False
+            if env:
+                hum = env["hum"]
+                if hum > HUMIDITY_SKIP_THRESHOLD:
+                    humidity_too_high = True
+            # =======================================================
+
+            for s in scheds:
+
+                # Skip schedules if humidity is too high
+                if humidity_too_high:
+                    # Optionally update last_run to mark it skipped
+                    # Or log somewhere
+                    continue
+
+                if (
+                    should_run_today(s.get("days", []), now)
+                    and time_matches(s.get("start", ""), now)
+                    and not already_ran_this_minute(s, now)
+                ):
+                    mark_last_run(s, now)
+                    save_schedules(scheds)
+
+                    # Ensure running sequence stops immediately if needed
+                    run_cancel.set()
+
+                    Thread(target=run_sequence, args=(s,), daemon=True).start()
+
+            time.sleep(CHECK_INTERVAL_SEC)
+       
 def start_scheduler():
     """Start the background scheduler thread."""
     Thread(target=scheduler_loop, daemon=True).start()

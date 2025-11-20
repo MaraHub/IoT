@@ -22,3 +22,7 @@ NAMES.update({ z_id: z_cfg["name"] for z_id, z_cfg in SHELLY_ZONES.items() })
 
 # Zone default order (for schedules)
 ZORDER = list(RELAYS.keys()) + list(SHELLY_ZONES.keys())
+
+# Humidity Sensor
+SENSOR_IP = "192.168.1.247"
+HUMIDITY_SKIP_THRESHOLD = 95.0 
