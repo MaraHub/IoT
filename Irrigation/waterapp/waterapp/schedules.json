@@ -23,21 +23,5 @@
       }
     ],
     "created": 1763628522
-  },
-  {
-    "id": 2,
-    "name": "test 2",
-    "start": "12:00",
-    "days": [
-      "Tue",
-      "Thu"
-    ],
-    "sequence": [
-      {
-        "key": "S1",
-        "mins": 3
-      }
-    ],
-    "created": 1763633528
   }
 ]
